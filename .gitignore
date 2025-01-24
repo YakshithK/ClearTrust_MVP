@@ -1,0 +1,70 @@
+# Node.js Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+
+# Python Dependencies
+__pycache__/
+test_trainer/
+*.py[cod]
+*.sqlite3
+*.pkl
+venv/
+env/
+Pipfile.lock
+
+# IDE/Editor Files
+.idea/
+.vscode/
+*.swp
+*.sublime-workspace
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Build Files
+build/
+dist/
+*.log
+coverage/
+*.out
+*.o
+*.so
+
+# Testing and Coverage
+*.test/
+.jest/
+*.pytest_cache/
+
+# Docker and Deployment
+docker-compose.override.yml
+*.log
+*.pid
+.env.local
+.env.*.local
+
+# Encryption Keys or Secrets
+*.key
+*.crt
+*.pem
+
+# Machine Learning Model Files
+*.h5
+*.pt
+*.pth
+*.onnx
+*.joblib
+
+# Static Files (if auto-generated)
+staticfiles/
+mediafiles/
+
+# Temporary or Debugging Files
+tmp/
+logs/
+*.bak
+*.tmp
+
+old/scamdetection-444022-869e4c091d2a.json
