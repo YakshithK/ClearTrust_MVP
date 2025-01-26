@@ -1,8 +1,11 @@
 import express from 'express'
-import { detectScam } from "../controllers/detectorController.js"
+import { detectSms } from "../controllers/smsDetectorController.js"
+import { detectEmail } from '../controllers/emailDetectorController.js'
 
 const router = express.Router()
 
-router.post('/detect', detectScam)
+router.post('/detect-sms', detectSms)
+
+router.post('/detect-email', detectEmail)
 
 export default router

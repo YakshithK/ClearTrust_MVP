@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Import Axios
+import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [message, setMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('sms'); // To toggle between tabs
+  const [smsMessage, setSmsMessage] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
   const [response, setResponse] = useState(null);
   const [keywords, setKeywords] = useState([]);
   const [scamProb, setScamProb] = useState(null);
 
   const getProb = (res) => {
     let newRes = res.slice(1);
-    
     const bracketCount = (newRes.match(/\]/g) || []).length;
 
     let modifiedString = newRes;
 
     // If there are more than one `]`, remove one
     if (bracketCount > 1) {
-      // Find the index of the second `]` and remove it
       const secondBracketIndex = newRes.indexOf(']', newRes.indexOf(']') + 1);
       modifiedString = newRes.slice(0, secondBracketIndex) + newRes.slice(secondBracketIndex + 1);
     }
@@ -30,15 +30,17 @@ function App() {
 
     setScamProb(Math.round(scamProbability)); // Set scam probability
     setKeywords(keywordsArray); // Set keywords
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent form submission from reloading the page
 
+    const endpoint = activeTab === 'sms' ? '/api/detect-sms' : '/api/detect-email';
+    const message = activeTab === 'sms' ? smsMessage : emailMessage;
+
     try {
-      // Send POST request with the required body format
-      const res = await axios.post('http://localhost:5000/api/detect', {
-        smsText: message, // Format the body with smsText as the key
+      const res = await axios.post(`http://localhost:5000${endpoint}`, {
+        scamText: message, // Send the message in the body
       });
 
       setResponse(res.data); // Store the response data
@@ -48,26 +50,55 @@ function App() {
     }
   };
 
-  // Only run getProb when response changes (and not on every render)
   useEffect(() => {
     if (response && response.result) {
-      getProb(response.result); // Call getProb when response changes
+      getProb(response.result); // Process response when it changes
     }
   }, [response]);
 
   return (
     <div className="App">
       <header className="App-header">
-        <h1>SMS Scam Detector</h1>
+        <h1>Scam Detector</h1>
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === 'sms' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sms')}
+          >
+            SMS
+          </button>
+          <button
+            className={`tab ${activeTab === 'email' ? 'active' : ''}`}
+            onClick={() => setActiveTab('email')}
+          >
+            Email
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
-          <textarea
-            placeholder="Enter the SMS message here..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows="5"
-            cols="50"
-            required
-          ></textarea>
+          {activeTab === 'sms' && (
+            <div>
+              <textarea
+                placeholder="Enter the SMS message here..."
+                value={smsMessage}
+                onChange={(e) => setSmsMessage(e.target.value)}
+                rows="5"
+                cols="50"
+                required
+              ></textarea>
+            </div>
+          )}
+          {activeTab === 'email' && (
+            <div>
+              <textarea
+                placeholder="Enter the Email message here..."
+                value={emailMessage}
+                onChange={(e) => setEmailMessage(e.target.value)}
+                rows="5"
+                cols="50"
+                required
+              ></textarea>
+            </div>
+          )}
           <br />
           <button type="submit">Detect</button>
         </form>
