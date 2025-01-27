@@ -1,8 +1,8 @@
 import sys
 import joblib
 
-vectorizer_filename = r'C:\Users\prabh\Desktop\Elderly Financial Scams\create\backend\models\email_vectorizer.pkl' # Change to your actual file path
-model_filename = r'C:\Users\prabh\Desktop\Elderly Financial Scams\create\backend\models\email_model.pkl'  # Change to your actual file path
+vectorizer_filename = r'C:\Users\prabh\Desktop\Elderly Financial Scams\mvp\backend\models\email_vectorizer.pkl' # Change to your actual file path
+model_filename = r'C:\Users\prabh\Desktop\Elderly Financial Scams\mvp\backend\models\email_model.pkl'  # Change to your actual file path
 
 vectorizer = joblib.load(vectorizer_filename)
 model = joblib.load(model_filename)
