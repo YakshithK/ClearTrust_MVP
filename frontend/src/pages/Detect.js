@@ -3,6 +3,7 @@ import { ReactMic } from "react-mic";
 import axios from "axios";
 import "../App.css";
 import { Button } from "../components/Button";
+import ReportModal from "../components/reportModal";
 
 function Detect() {
   const [activeTab, setActiveTab] = useState("sms"); // To toggle between tabs
@@ -13,6 +14,33 @@ function Detect() {
   const [scamProb, setScamProb] = useState(null);
   const [record, setRecord] = useState(false);
   const [result, setResult] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [feedbackType, setFeedbackType] = useState(""); // "false_positive" or "false_negative"
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const submitReport = async () => {
+    if (scamProb === null || scamProb === undefined || !feedbackType) {
+      alert("Please select a feedback type.");
+      return;
+    }
+  
+    try {
+      await axios.post("http://localhost:5000/api/detect-report", {report: {
+        model: activeTab,
+        message: activeTab === "sms" ? smsMessage : emailMessage,
+        feedback_type: feedbackType,
+      }});
+  
+      alert("Report submitted successfully.");
+      closeModal();
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("Failed to submit report.");
+    }
+  };
+  
 
   const startRecording = () => {
     setRecord(true);
@@ -96,6 +124,8 @@ function Detect() {
       setResponse({ error: "Failed to detect scam message." });
     }
   };
+
+
 
   useEffect(() => {
     if (response && response.result) {
@@ -206,6 +236,43 @@ function Detect() {
                 </ul>
               </div>
             )}
+          </div>
+        )}
+                {/* Report Result Button */}
+                {response && (
+          <Button onClick={openModal}>Report Result</Button>
+        )}
+
+        {/* Report Modal */}
+        {isModalOpen && (
+          <div className="modal">
+            <div className="modal-content">
+              <h2>Report Incorrect Classification</h2>
+              <p>Scam Probability: {scamProb}%</p>
+
+              <label>
+                <input
+                  type="radio"
+                  name="feedback"
+                  value="false_positive"
+                  onChange={() => setFeedbackType("false_positive")}
+                />
+                False Positive (Not a Scam but Detected as Scam)
+              </label>
+              <br />
+              <label>
+                <input
+                  type="radio"
+                  name="feedback"
+                  value="false_negative"
+                  onChange={() => setFeedbackType("false_negative")}
+                />
+                False Negative (Scam but Not Detected)
+              </label>
+              <br />
+              <Button onClick={submitReport}>Submit Report</Button>
+              <Button onClick={closeModal}>Close</Button>
+            </div>
           </div>
         )}
       </header>

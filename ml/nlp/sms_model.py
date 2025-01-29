@@ -3,13 +3,13 @@ import joblib
 import re
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
 # Load data
-df = pd.read_csv('ml\sms.csv')
+df = pd.read_csv(r'ml\nlp\sms.csv')
 df = df[['label', 'text']]
 df.dropna(subset=['label', 'text'], inplace=True)
 
@@ -18,13 +18,6 @@ def is_clean_text(text):
     return bool(re.match(r'^[\x00-\x7F]+$', text))
 
 df = df[df['text'].apply(is_clean_text)]
-
-# Map labels to numeric values
-df['label'] = df['label'].map({'spam': 1, 'ham': 0})
-df = df[df['label'].notnull()]
-
-# Reset index after cleaning
-df = df.reset_index(drop=True)
 
 # Count samples of each class
 class_counts = df['label'].value_counts()
@@ -54,8 +47,8 @@ X_tfidf = vectorizer.fit_transform(X)
 # Split data
 X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y, shuffle=True, test_size=0.3, random_state=42)
 
-# Train model
-model = LogisticRegression()
+# Train Multinomial Naive Bayes model
+model = MultinomialNB()
 model.fit(X_train, y_train)
 
 print('Model has been trained')
@@ -70,8 +63,8 @@ cm_display.plot()
 plt.show()
 
 # Save model and vectorizer
-joblib.dump(model, 'ml\sms_model.pkl')
-joblib.dump(vectorizer, 'ml\sms_vectorizer.pkl')
+joblib.dump(model, r'ml\nlp\sms_model.pkl')
+joblib.dump(vectorizer, r'ml\nlp\sms_vectorizer.pkl')
 
 
 # Function to predict scam probability
@@ -85,7 +78,7 @@ def predict_scam_probability(text):
 def extract_scam_keywords(text, top_n=5):
     processed_text = vectorizer.transform([text])
     feature_names = vectorizer.get_feature_names_out()
-    coef = model.coef_[0]  # Coefficients for the spam class
+    coef = model.feature_log_prob_[1]  # Log-probabilities for the spam class
     word_indices = processed_text.nonzero()[1]
     word_scores = [(feature_names[i], coef[i]) for i in word_indices]
     sorted_keywords = sorted(word_scores, key=lambda x: abs(x[1]), reverse=True)

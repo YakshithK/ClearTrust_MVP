@@ -68,3 +68,4 @@ logs/
 *.tmp
 
 old/scamdetection-444022-869e4c091d2a.json
+backend/uploads

@@ -19,7 +19,6 @@ def clear_directory(directory_path):
                 os.unlink(item_path)  # Remove file or symbolic link
             elif os.path.isdir(item_path):
                 shutil.rmtree(item_path)  # Remove directory
-        print(f"All contents of '{directory_path}' have been removed.")
     else:
         print(f"The directory '{directory_path}' does not exist or is not accessible.")
 
@@ -34,7 +33,6 @@ def classify_audio(audio_path):
 
     # Transcription
     transcription = result["text"]
-    print(f"Transcription: {transcription}")
 
     # Transform transcription into input vector
     input_vector = vectorizer.transform([transcription])

@@ -1,8 +1,6 @@
 import express from 'express'
 import multer from "multer";
-import { detectSms } from "../controllers/smsDetectorController.js"
-import { detectEmail } from '../controllers/emailDetectorController.js'
-import { detectPhone } from '../controllers/phoneDetectorController.js';
+import { detectEmail, detectSms, detectPhone, report } from '../controllers/detectorController.js';
 
 const upload = multer({ dest: "uploads/" });
 
@@ -13,5 +11,7 @@ router.post('/detect-sms', detectSms)
 router.post('/detect-email', detectEmail)
 
 router.post("/detect-phone", upload.single("audio"), detectPhone);
+
+router.post('/detect-report', report)
 
 export default router
