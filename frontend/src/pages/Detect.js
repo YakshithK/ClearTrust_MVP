@@ -4,6 +4,7 @@ import axios from "axios";
 import "../App.css";
 import { Button } from "../components/Button";
 import ReportModal from "../components/reportModal";
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
 function Detect() {
   const [activeTab, setActiveTab] = useState("sms"); // To toggle between tabs
@@ -27,7 +28,7 @@ function Detect() {
     }
   
     try {
-      await axios.post("http://localhost:5000/api/detect-report", {report: {
+      await axios.post(`${API_BASE_URL}/api/detect-report`, {report: {
         model: activeTab,
         message: activeTab === "sms" ? smsMessage : emailMessage,
         feedback_type: feedbackType,
@@ -57,7 +58,7 @@ function Detect() {
 
     // Send audio to the backend
     axios
-      .post("http://localhost:5000/api/detect-phone", formData)
+      .post(`${API_BASE_URL}/api/detect-phone`, formData)
       .then((res) => {
         setResult(res.data.result);
       })
@@ -114,7 +115,7 @@ function Detect() {
     const message = activeTab === "sms" ? smsMessage : emailMessage;
 
     try {
-      const res = await axios.post(`http://localhost:5000${endpoint}`, {
+      const res = await axios.post(`${API_BASE_URL}${endpoint}`, {
         scamText: message, // Send the message in the body
       });
 
