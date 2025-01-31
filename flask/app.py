@@ -1,32 +1,21 @@
 from flask import Flask, request, jsonify
 import joblib
-import os
-import sklearn
 
 app = Flask(__name__)
 
-# Base directory of the project
-base_dir = os.path.dirname(os.path.abspath(__file__))
+vectorizer_filename = r'.\models\sms_vectorizer.pkl'  # Change to your actual file path
+model_filename = r'.\models\sms_model.pkl'  # Change to your actual file path
 
-# Load SMS model and vectorizer
-sms_vectorizer_filename = os.path.join(base_dir, 'models', 'sms_vectorizer.pkl')
-sms_model_filename = os.path.join(base_dir, 'models', 'sms_model.pkl')
-sms_vectorizer = joblib.load(sms_vectorizer_filename)
-sms_model = joblib.load(sms_model_filename)
+vectorizer = joblib.load(vectorizer_filename)
+model = joblib.load(model_filename)
 
-# Load email model and vectorizer
-email_vectorizer_filename = os.path.join(base_dir, 'models', 'email_vectorizer.pkl')
-email_model_filename = os.path.join(base_dir, 'models', 'email_model.pkl')
-email_vectorizer = joblib.load(email_vectorizer_filename)
-email_model = joblib.load(email_model_filename)
-
-def predict_scam_probability(text, vectorizer, model):
+def predict_scam_probability(text):
     processed_text = vectorizer.transform([text])
     probabilities = model.predict_proba(processed_text)
     scam_probability = probabilities[0][1] * 100  
     return round(scam_probability)
 
-def extract_scam_keywords(text, vectorizer, model, top_n=5):
+def extract_scam_keywords(text, top_n=5):
     processed_text = vectorizer.transform([text])
     feature_names = vectorizer.get_feature_names_out()
     coef = model.feature_log_prob_[1]  # Log-probabilities for the spam class
@@ -36,28 +25,15 @@ def extract_scam_keywords(text, vectorizer, model, top_n=5):
     scam_keywords = [word for word, score in sorted_keywords[:top_n]]
     return scam_keywords
 
-@app.route('/detect_sms', methods=['POST'])
+@app.route('/detect_scam', methods=['POST'])
 def detect_scam():
     data = request.json
     if 'scamText' not in data:
         return jsonify({'error': 'SMS text is required'}), 400
     
     scam_text = data['scamText']
-    probability = predict_scam_probability(scam_text, sms_vectorizer, sms_model)
-    keywords = extract_scam_keywords(scam_text, sms_vectorizer, sms_model)
+    probability = predict_scam_probability(scam_text)
+    keywords = extract_scam_keywords(scam_text)
     return jsonify({'scam_probability': probability, 'scam_keywords': keywords})
 
-@app.route('/detect_email', methods=['POST'])
-def detect_email():
-    data = request.json
-    if 'emailText' not in data:
-        return jsonify({'error': 'Email text is required'}), 400
-    
-    email_text = data['emailText']
-    probability = predict_scam_probability(email_text, email_vectorizer, email_model)
-    keywords = extract_scam_keywords(email_text, email_vectorizer, email_model)
-    return jsonify({'scam_probability': probability, 'scam_keywords': keywords})
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
