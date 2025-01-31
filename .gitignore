@@ -9,7 +9,6 @@ __pycache__/
 test_trainer/
 *.py[cod]
 *.sqlite3
-*.pkl
 venv/
 myenv/
 env/
