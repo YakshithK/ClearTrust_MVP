@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import path from 'path';
-
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000"
 
 export const detectPhone = (req, res) => {
     const audioPath = req.file.path;
@@ -23,66 +23,36 @@ export const detectPhone = (req, res) => {
   });
 };
 
-export const detectSms = (req, res) => {
+export const detectSms = async (req, res) => {
   const { scamText } = req.body;
   
   if (!scamText) {
     return res.status(400).json({ error: 'SMS text is required' });
   }
 
-  // Spawn Python process to run the SMS detection model
-  const pythonProcess = spawn('C:/Users/prabh/AppData/Local/Programs/Python/Python39/python.exe', ['python/sms_detector.py', scamText]);
-
-  pythonProcess.stdout.on('data', (data) => {
-    const result = data.toString();
-    if (!res.headersSent) { // Ensure headers are not already sent
-      res.json({ result });
-    }
-  });
-
-  pythonProcess.stderr.on('data', (error) => {
-    console.error(`stderr: ${error}`);
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Error occurred while processing the SMS' });
-    }
-  });
-
-  pythonProcess.on('close', (code) => {
-    if (code !== 0 && !res.headersSent) {
-      res.status(500).json({ error: 'Error occurred while running the Python script' });
-    }
-  });
+  try {
+    const response = await axios.post(`${API_BASE_URL}/detect_scam`, { scamText });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error while processing the SMS:', error);
+    res.status(500).json({ error: 'Error occurred while processing the SMS' });
+  }
 };
 
-export const detectEmail = (req, res) => {
+export const detectEmail = async (req, res) => {
   const { scamText } = req.body;
   
   if (!scamText) {
     return res.status(400).json({ error: 'Email text is required' });
   }
 
-  // Spawn Python process to run the SMS detection model
-  const pythonProcess = spawn('C:/Users/prabh/AppData/Local/Programs/Python/Python39/python.exe', ['python/email_detector.py', scamText]);
-
-  pythonProcess.stdout.on('data', (data) => {
-    const result = data.toString();
-    if (!res.headersSent) { // Ensure headers are not already sent
-      res.json({ result });
-    }
-  });
-
-  pythonProcess.stderr.on('data', (error) => {
-    console.error(`stderr: ${error}`);
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Error occurred while processing the Email' });
-    }
-  });
-
-  pythonProcess.on('close', (code) => {
-    if (code !== 0 && !res.headersSent) {
-      res.status(500).json({ error: 'Error occurred while running the Python script' });
-    }
-  });
+  try {
+    const response = await axios.post(`${API_BASE_URL}/detect_email`, { scamText });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error while processing the Email:', error);
+    res.status(500).json({ error: 'Error occurred while processing the Email' });
+  }
 };
 
 export const report = (req, res) => {
