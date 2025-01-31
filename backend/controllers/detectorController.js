@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import path from 'path';
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000"
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:5000/"
 
 export const detectPhone = (req, res) => {
     const audioPath = req.file.path;
@@ -31,7 +31,7 @@ export const detectSms = async (req, res) => {
   }
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/detect_scam`, { scamText });
+    const response = await axios.post(`${API_BASE_URL}/detect_sms`, { scamText });
     res.json(response.data);
   } catch (error) {
     console.error('Error while processing the SMS:', error);

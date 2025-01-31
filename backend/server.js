@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const app = express();
-const port = 5000;
+const port = 7000;
 
 app.use(bodyParser.json());
 app.use(express.json())

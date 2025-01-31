@@ -1,17 +1,21 @@
 from flask import Flask, request, jsonify
 import joblib
+import os
 
 app = Flask(__name__)
 
+# Base directory of the project
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Load SMS model and vectorizer
-sms_vectorizer_filename = r'.\models\sms_vectorizer.pkl'  # Change to your actual file path
-sms_model_filename = r'.\models\sms_model.pkl'  # Change to your actual file path
+sms_vectorizer_filename = os.path.join(base_dir, 'models', 'sms_vectorizer.pkl')
+sms_model_filename = os.path.join(base_dir, 'models', 'sms_model.pkl')
 sms_vectorizer = joblib.load(sms_vectorizer_filename)
 sms_model = joblib.load(sms_model_filename)
 
 # Load email model and vectorizer
-email_vectorizer_filename = r'.\models\email_vectorizer.pkl'  # Change to your actual file path
-email_model_filename = r'.\models\email_model.pkl'  # Change to your actual file path
+email_vectorizer_filename = os.path.join(base_dir, 'models', 'email_vectorizer.pkl')
+email_model_filename = os.path.join(base_dir, 'models', 'email_model.pkl')
 email_vectorizer = joblib.load(email_vectorizer_filename)
 email_model = joblib.load(email_model_filename)
 
@@ -31,7 +35,7 @@ def extract_scam_keywords(text, vectorizer, model, top_n=5):
     scam_keywords = [word for word, score in sorted_keywords[:top_n]]
     return scam_keywords
 
-@app.route('/detect_scam', methods=['POST'])
+@app.route('/detect_sms', methods=['POST'])
 def detect_scam():
     data = request.json
     if 'scamText' not in data:
