@@ -1,0 +1,28 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "server.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/detect-sms",
+        "dest": "/api/detect-sms"
+      },
+      {
+        "src": "/api/detect-phone",
+        "dest": "/api/detect-phone"
+      },
+      {
+        "src": "/api/detect-email",
+        "dest": "/api/detect-email"
+      },
+      {
+        "src": "/api/report",
+        "dest": "/api/report"
+      }
+    ]
+  }
+  
