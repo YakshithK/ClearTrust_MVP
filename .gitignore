@@ -11,6 +11,7 @@ test_trainer/
 *.sqlite3
 *.pkl
 venv/
+myenv/
 env/
 Pipfile.lock
 
