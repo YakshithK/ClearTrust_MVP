@@ -20,5 +20,9 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/api', detect);
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+
 // Start the server
 app.listen(port, () => {console.log(`Server is running on http://localhost:${port}`);});
