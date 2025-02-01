@@ -4,7 +4,7 @@ import axios from "axios";
 import "../App.css";
 import { Button } from "../components/Button";
 import ReportModal from "../components/reportModal";
-const API_BASE_URL = 'https://cleartrust-mvp.onrender.com'
+const API_BASE_URL = 'https://cleartrust-mvp.onrender.com';
 
 function Detect() {
   const [activeTab, setActiveTab] = useState("sms"); // To toggle between tabs
@@ -28,7 +28,7 @@ function Detect() {
     }
   
     try {
-      await axios.post(`${API_BASE_URL}/api/detect-report`, {report: {
+      await axios.post(`${API_BASE_URL}/api/detect-report`, { report: {
         model: activeTab,
         message: activeTab === "sms" ? smsMessage : emailMessage,
         feedback_type: feedbackType,
@@ -41,7 +41,6 @@ function Detect() {
       alert("Failed to submit report.");
     }
   };
-  
 
   const startRecording = () => {
     setRecord(true);
@@ -87,28 +86,8 @@ function Detect() {
   };
 
   const getProb = (res) => {
-
-    setScamProb(Math.round(res.scam_probability))
-    setKeywords(res.scam_keywords)
-    // let newRes = res.slice(1);
-    // const bracketCount = (newRes.match(/\]/g) || []).length;
-
-    // let modifiedString = newRes;
-
-    // // If there are more than one `]`, remove one
-    // if (bracketCount > 1) {
-    //   const secondBracketIndex = newRes.indexOf("]", newRes.indexOf("]") + 1);
-    //   modifiedString = newRes.slice(0, secondBracketIndex) + newRes.slice(secondBracketIndex + 1);
-    // }
-
-    // modifiedString = modifiedString.replace(", [", ". [");
-
-    // const [numStr, arrStr] = modifiedString.split(". ");
-    // const scamProbability = parseFloat(numStr);
-    // const keywordsArray = eval(arrStr);
-
-    // setScamProb(Math.round(scamProbability)); // Set scam probability
-    // setKeywords(keywordsArray); // Set keywords
+    setScamProb(Math.round(res.scam_probability));
+    setKeywords(res.scam_keywords);
   };
 
   const handleSubmit = async (e) => {
@@ -123,20 +102,12 @@ function Detect() {
       });
 
       setResponse(res.data); // Store the response data
-      console.log(res.data)
+      getProb(res.data); // Process response directly
     } catch (error) {
       console.error("Error:", error);
       setResponse({ error: "Failed to detect scam message." });
     }
   };
-
-
-
-  useEffect(() => {
-    if (response && response.result) {
-      getProb(response.result); // Process response when it changes
-    }
-  }, [response]);
 
   return (
     <div className="Page" style={{ textAlign: "center" }}>
@@ -243,12 +214,11 @@ function Detect() {
             )}
           </div>
         )}
-                {/* Report Result Button */}
-                {response && (
+        
+        {response && (
           <Button onClick={openModal}>Report Result</Button>
         )}
 
-        {/* Report Modal */}
         {isModalOpen && (
           <div className="modal">
             <div className="modal-content">
@@ -263,16 +233,6 @@ function Detect() {
                   onChange={() => setFeedbackType("false_positive")}
                 />
                 False Positive (Not a Scam but Detected as Scam)
-              </label>
-              <br />
-              <label>
-                <input
-                  type="radio"
-                  name="feedback"
-                  value="false_negative"
-                  onChange={() => setFeedbackType("false_negative")}
-                />
-                False Negative (Scam but Not Detected)
               </label>
               <br />
               <Button onClick={submitReport}>Submit Report</Button>
