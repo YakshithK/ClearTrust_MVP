@@ -120,6 +120,7 @@ function Detect() {
       });
 
       setResponse(res.data); // Store the response data
+      console.log(res.data)
     } catch (error) {
       console.error("Error:", error);
       setResponse({ error: "Failed to detect scam message." });
