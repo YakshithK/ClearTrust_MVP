@@ -28,7 +28,7 @@ function Detect() {
     }
   
     try {
-      await axios.post(`${API_BASE_URL}/api/detect-report`, {report: {
+      await axios.post(`https://cleartrust-mvp.onrender.com/api/detect-report`, {report: {
         model: activeTab,
         message: activeTab === "sms" ? smsMessage : emailMessage,
         feedback_type: feedbackType,
@@ -58,7 +58,7 @@ function Detect() {
 
     // Send audio to the backend
     axios
-      .post(`${API_BASE_URL}/api/detect-phone`, formData)
+      .post(`https://cleartrust-mvp.onrender.com/api/detect-phone`, formData)
       .then((res) => {
         setResult(res.data.result);
       })
@@ -115,7 +115,7 @@ function Detect() {
     const message = activeTab === "sms" ? smsMessage : emailMessage;
 
     try {
-      const res = await axios.post(`${API_BASE_URL}${endpoint}`, {
+      const res = await axios.post(`https://cleartrust-mvp.onrender.com${endpoint}`, {
         scamText: message, // Send the message in the body
       });
 
