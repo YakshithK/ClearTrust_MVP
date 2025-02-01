@@ -87,25 +87,28 @@ function Detect() {
   };
 
   const getProb = (res) => {
-    let newRes = res.slice(1);
-    const bracketCount = (newRes.match(/\]/g) || []).length;
 
-    let modifiedString = newRes;
+    setScamProb(Math.round(res.scam_probability))
+    setKeywords(res.scam_keywords)
+    // let newRes = res.slice(1);
+    // const bracketCount = (newRes.match(/\]/g) || []).length;
 
-    // If there are more than one `]`, remove one
-    if (bracketCount > 1) {
-      const secondBracketIndex = newRes.indexOf("]", newRes.indexOf("]") + 1);
-      modifiedString = newRes.slice(0, secondBracketIndex) + newRes.slice(secondBracketIndex + 1);
-    }
+    // let modifiedString = newRes;
 
-    modifiedString = modifiedString.replace(", [", ". [");
+    // // If there are more than one `]`, remove one
+    // if (bracketCount > 1) {
+    //   const secondBracketIndex = newRes.indexOf("]", newRes.indexOf("]") + 1);
+    //   modifiedString = newRes.slice(0, secondBracketIndex) + newRes.slice(secondBracketIndex + 1);
+    // }
 
-    const [numStr, arrStr] = modifiedString.split(". ");
-    const scamProbability = parseFloat(numStr);
-    const keywordsArray = eval(arrStr);
+    // modifiedString = modifiedString.replace(", [", ". [");
 
-    setScamProb(Math.round(scamProbability)); // Set scam probability
-    setKeywords(keywordsArray); // Set keywords
+    // const [numStr, arrStr] = modifiedString.split(". ");
+    // const scamProbability = parseFloat(numStr);
+    // const keywordsArray = eval(arrStr);
+
+    // setScamProb(Math.round(scamProbability)); // Set scam probability
+    // setKeywords(keywordsArray); // Set keywords
   };
 
   const handleSubmit = async (e) => {
