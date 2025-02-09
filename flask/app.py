@@ -4,14 +4,14 @@ import os
 import sklearn
 import sys
 import whisper
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 
 if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "https://clear-trust-mvp-gyvp.vercel.app"}})  # Explicitly allow your frontend origin
 
 # Base directory of the project
 base_dir = os.path.dirname(os.path.abspath(__file__))
