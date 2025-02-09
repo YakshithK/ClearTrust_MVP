@@ -1,32 +1,45 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import axios from 'axios';
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:5000/"
+import multer from 'multer';
+import fs from 'fs';
+import FormData from 'form-data'; // Import the `form-data` library
 
-export const detectPhone = (req, res) => {
-    const audioPath = req.file.path;
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:5000/";
 
-  // Spawn Python process to run the SMS detection model
-  const pythonProcess = spawn('C:/Users/prabh/AppData/Local/Programs/Python/Python39/python.exe', [path.resolve('python/phone_detector.py'), audioPath]);
+// Configure Multer to handle file uploads
+const upload = multer({ dest: 'uploads/' }); // Ensure this points to the correct directory
 
-  let output = ''
-  pythonProcess.stdout.on("data", (data) => {
-    output += data.toString();
-  });
+export const detectPhone = async (req, res) => {
+  try {
+    const audioFile = req.file; // Multer will attach the file to `req.file`
+    
+    if (!audioFile) {
+      throw new Error("Audio file not uploaded");
+    }
 
-  pythonProcess.on("close", () => {
-    res.json({ result: output.trim() });
-  });
+    console.log('Received file:', audioFile);
 
-  pythonProcess.stderr.on("data", (data) => {
-    console.error(`Python Error: ${data}`);
-    res.status(500).send("Error processing audio");
-  });
+    // Create FormData and append the audio file
+    const formData = new FormData();
+    formData.append('audio', fs.createReadStream(audioFile.path));
+
+    // Send the audio file to the Flask backend
+    const response = await axios.post(`${API_BASE_URL}/detect_phone`, formData, {
+      headers: formData.getHeaders(), // Set the correct headers
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error processing phone audio:", error);
+    res.status(500).json({ error: "Error processing phone audio" });
+  }
 };
+
 
 export const detectSms = async (req, res) => {
   const { scamText } = req.body;
-  
+
   if (!scamText) {
     return res.status(400).json({ error: 'SMS text is required' });
   }
@@ -42,7 +55,7 @@ export const detectSms = async (req, res) => {
 
 export const detectEmail = async (req, res) => {
   const { scamText } = req.body;
-  
+
   if (!scamText) {
     return res.status(400).json({ error: 'Email text is required' });
   }
@@ -64,18 +77,18 @@ export const report = (req, res) => {
   const pythonProcess = spawn('C:/Users/prabh/AppData/Local/Programs/Python/Python39/python.exe', ['python/retrainer.py', JSON.stringify(report)]);
 
   pythonProcess.stdout.on("data", (data) => {
-      console.log(`stdout: ${data}`);
+    console.log(`stdout: ${data}`);
   });
 
   pythonProcess.stderr.on("data", (data) => {
-      console.error(`stderr: ${data}`);
+    console.error(`stderr: ${data}`);
   });
 
   pythonProcess.on("close", (code) => {
-      if (code === 0) {
-          res.json({ message: "Model retrained successfully!" });
-      } else {
-          res.status(500).json({ message: "Model retraining failed!" });
-      }
+    if (code === 0) {
+      res.json({ message: "Model retrained successfully!" });
+    } else {
+      res.status(500).json({ message: "Model retraining failed!" });
+    }
   });
 };

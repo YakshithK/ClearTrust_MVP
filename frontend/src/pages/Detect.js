@@ -4,7 +4,8 @@ import axios from "axios";
 import "../App.css";
 import { Button } from "../components/Button";
 import ReportModal from "../components/reportModal";
-const API_BASE_URL = 'https://cleartrust-mvp.onrender.com';
+const API_BASE_URL = 'http://localhost:4000';
+const FLASK_API_BASE_URL = process.env.FLASK_APP_BACKEND_URL || "http://127.0.0.1:5000/";
 
 function Detect() {
   const [activeTab, setActiveTab] = useState("sms"); // To toggle between tabs
@@ -52,12 +53,17 @@ function Detect() {
 
   const onStop = (recordedBlob) => {
     console.log("Recording stopped", recordedBlob);
+  
+    const audioFile = new File([recordedBlob.blob], "call_recording.wav", {
+      type: "audio/wav",
+    });
+  
     const formData = new FormData();
-    formData.append("audio", recordedBlob.blob, "uploads/call_recording.wav");
-
-    // Send audio to the backend
+    formData.append("audio", audioFile);
+  
+    // Directly send the audio file to the Flask backend
     axios
-      .post(`${API_BASE_URL}/api/detect-phone`, formData)
+      .post(`${FLASK_API_BASE_URL}/detect_phone`, formData) // Use Flask backend URL
       .then((res) => {
         setResult(res.data.result);
       })
@@ -65,6 +71,7 @@ function Detect() {
         console.error("Error uploading audio:", err);
       });
   };
+  
 
   const tabStyle = {
     padding: "10px 20px",

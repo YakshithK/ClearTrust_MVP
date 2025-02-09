@@ -2,23 +2,38 @@ from flask import Flask, request, jsonify
 import joblib
 import os
 import sklearn
+import sys
+import whisper
+
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 app = Flask(__name__)
 
 # Base directory of the project
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Load SMS model and vectorizer
+# Load models and vectorizers
 sms_vectorizer_filename = os.path.join(base_dir, 'models', 'sms_vectorizer.pkl')
 sms_model_filename = os.path.join(base_dir, 'models', 'sms_model.pkl')
 sms_vectorizer = joblib.load(sms_vectorizer_filename)
 sms_model = joblib.load(sms_model_filename)
 
-# Load email model and vectorizer
 email_vectorizer_filename = os.path.join(base_dir, 'models', 'email_vectorizer.pkl')
 email_model_filename = os.path.join(base_dir, 'models', 'email_model.pkl')
 email_vectorizer = joblib.load(email_vectorizer_filename)
 email_model = joblib.load(email_model_filename)
+
+phone_vectorizer_filename = os.path.join(base_dir, 'models', 'phone_vectorizer.pkl')
+phone_model_filename = os.path.join(base_dir, 'models', 'phone_model.pkl')
+phone_vectorizer = joblib.load(phone_vectorizer_filename)
+phone_model = joblib.load(phone_model_filename)
+
+# Define the local uploads folder for Flask
+UPLOAD_FOLDER = os.path.join(base_dir, 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 def predict_scam_probability(text, vectorizer, model):
     processed_text = vectorizer.transform([text])
@@ -57,6 +72,35 @@ def detect_email():
     probability = predict_scam_probability(email_text, email_vectorizer, email_model)
     keywords = extract_scam_keywords(email_text, email_vectorizer, email_model)
     return jsonify({'scam_probability': probability, 'scam_keywords': keywords})
+
+@app.route('/detect_phone', methods=['POST'])
+def classify_audio():
+    if "audio" not in request.files:
+        return jsonify({"error": "No audio file provided"}), 400
+
+    audio_file = request.files["audio"]
+    
+    # Save the file temporarily if needed
+    file_path = os.path.join(UPLOAD_FOLDER, audio_file.filename)
+    audio_file.save(file_path)
+    
+    # Load Whisper model
+    whisper_model = whisper.load_model("tiny")
+    result = whisper_model.transcribe(file_path)
+
+    # Transcription
+    transcription = result["text"]
+
+    # Transform transcription into input vector
+    input_vector = phone_vectorizer.transform([transcription])
+    pred = phone_model.predict(input_vector)  # Predict whether it's a scam
+
+    # Delete the audio file after processing
+    os.remove(file_path)
+
+    # Return classification result
+    result = "Scam" if pred[0] == 1 else "Not Scam"
+    return jsonify({"result": result})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
