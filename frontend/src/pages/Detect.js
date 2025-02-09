@@ -4,8 +4,8 @@ import axios from "axios";
 import "../App.css";
 import { Button } from "../components/Button";
 import ReportModal from "../components/reportModal";
-const API_BASE_URL = 'http://localhost:4000';
-const FLASK_API_BASE_URL = process.env.FLASK_APP_BACKEND_URL || "http://127.0.0.1:5000/";
+const API_BASE_URL = 'https://cleartrust-mvp.onrender.com'
+const FLASK_API_BASE_URL = 'https://cleartrust-mvp-1.onrender.com'
 
 function Detect() {
   const [activeTab, setActiveTab] = useState("sms"); // To toggle between tabs
