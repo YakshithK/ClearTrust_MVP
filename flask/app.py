@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import joblib
 import os
-import sklearn
 import sys
 import whisper
 from flask_cors import CORS
@@ -11,7 +10,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 app = Flask(__name__)
-CORS(app, origins=["https://clear-trust-mvp-gyvp.vercel.app", 'https://cleartrust-mvp.onrender.com'])  # Explicitly allow your frontend origin
+CORS(app, origins=["https://clear-trust-mvp-gyvp.vercel.app", 'https://cleartrust-mvp.onrender.com', 'http://localhost:3000'])  # Explicitly allow your frontend origin
 
 # Base directory of the project
 base_dir = os.path.dirname(os.path.abspath(__file__))
