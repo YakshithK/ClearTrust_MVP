@@ -100,11 +100,11 @@ function Detect() {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent form submission from reloading the page
 
-    const endpoint = activeTab === "sms" ? "/api/detect-sms" : "/api/detect-email";
+    const endpoint = activeTab === "sms" ? "/detect_sms" : "/detect_email";
     const message = activeTab === "sms" ? smsMessage : emailMessage;
 
     try {
-      const res = await axios.post(`${API_BASE_URL}${endpoint}`, {
+      const res = await axios.post(`${FLASK_API_BASE_URL}${endpoint}`, {
         scamText: message, // Send the message in the body
       });
 
