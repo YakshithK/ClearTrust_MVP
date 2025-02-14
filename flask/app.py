@@ -12,7 +12,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 app = Flask(__name__)
-CORS(app, origins=["https://clear-trust-mvp-gyvp.vercel.app", 'https://cleartrust-mvp.onrender.com', 'http://localhost:3000'])  # Explicitly allow your frontend origin
+CORS(app, origins=["https://clear-trust-mvp.vercel.app/", "https://clear-trust-pa0ga8fwe-yakshiths-projects-f743b366.vercel.app/", 'http://clear-trust-mvp-git-main-yakshiths-projects-f743b366.vercel.app', 'http://localhost:3000'])  # Explicitly allow your frontend origin
 
 # Base directory of the project
 base_dir = os.path.dirname(os.path.abspath(__file__))
