@@ -4,6 +4,8 @@ import os
 import sys
 import whisper
 from flask_cors import CORS
+import json
+from retrain import retrainModel
 
 if not sys.warnoptions:
     import warnings
@@ -66,10 +68,10 @@ def detect_scam():
 @app.route('/detect_email', methods=['POST'])
 def detect_email():
     data = request.json
-    if 'emailText' not in data:
+    if 'scamText' not in data:
         return jsonify({'error': 'Email text is required'}), 400
     
-    email_text = data['emailText']
+    email_text = data['scamText']
     probability = predict_scam_probability(email_text, email_vectorizer, email_model)
     keywords = extract_scam_keywords(email_text, email_vectorizer, email_model)
     return jsonify({'scam_probability': probability, 'scam_keywords': keywords})
@@ -102,6 +104,13 @@ def classify_audio():
     # Return classification result
     result = "Scam" if pred[0] == 1 else "Not Scam"
     return jsonify({"result": result})
+
+@app.route('/detect_report', methods=['POST'])
+def receive_report():
+    report = json.loads(request.data)['report']
+
+    retrainModel(report)
+    return jsonify({ "message": "Model retrained successfully!" })
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

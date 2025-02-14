@@ -4,8 +4,7 @@ import axios from "axios";
 import "../App.css";
 import { Button } from "../components/Button";
 import ReportModal from "../components/reportModal";
-const API_BASE_URL = 'https://cleartrust-mvp.onrender.com'
-const FLASK_API_BASE_URL = 'https://cleartrust-mvp-1.onrender.com:10000'
+const FLASK_API_BASE_URL = process.env.BASE_URL ||'http://localhost:5000' //'https://cleartrust-mvp-1.onrender.com:10000'
 
 function Detect() {
   const [activeTab, setActiveTab] = useState("sms"); // To toggle between tabs
@@ -29,7 +28,7 @@ function Detect() {
     }
   
     try {
-      await axios.post(`${API_BASE_URL}/api/detect-report`, { report: {
+      await axios.post(`${FLASK_API_BASE_URL}/detect_report`, { report: {
         model: activeTab,
         message: activeTab === "sms" ? smsMessage : emailMessage,
         feedback_type: feedbackType,
@@ -240,6 +239,16 @@ function Detect() {
                   onChange={() => setFeedbackType("false_positive")}
                 />
                 False Positive (Not a Scam but Detected as Scam)
+              </label>
+              <br />
+              <label>
+                <input
+                  type="radio"
+                  name="feedback"
+                  value="false_negative"
+                  onChange={() => setFeedbackType("false_negative")}
+                />
+                False Negative (Scam but Not Detected)
               </label>
               <br />
               <Button onClick={submitReport}>Submit Report</Button>
