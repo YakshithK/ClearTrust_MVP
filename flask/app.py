@@ -6,6 +6,7 @@ import whisper
 from flask_cors import CORS
 import json
 from retrain import retrainModel
+from waitress import serve
 
 if not sys.warnoptions:
     import warnings
@@ -115,4 +116,4 @@ def receive_report():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Running on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
+    serve(app, host='0.0.0.0', port=port)
